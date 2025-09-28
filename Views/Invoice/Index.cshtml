@@ -1,0 +1,70 @@
+﻿@model List<InvoiceManagementSystem.Models.Invoice>
+@{
+    ViewData["Title"] = "Invoices";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Invoices</h2>
+    <a asp-controller="Invoice" asp-action="Create" class="btn btn-primary">Create Invoice</a>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Invoice Number</th>
+            <th>Party</th>
+            <th>Date</th>
+            <th>Total Amount</th>
+            <th>Items</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var invoice in Model)
+        {
+            <tr>
+                <td>@invoice.InvoiceNumber</td>
+                <td>@invoice.Party?.Name</td>
+                <td>@invoice.InvoiceDate.ToShortDateString()</td>
+                <td>@invoice.TotalAmount</td>
+                <td>
+                    <ul>
+                        @foreach (var item in invoice.Items)
+                        {
+                            <li>@item.InventoryItem?.Name x @item.Quantity = @item.Total</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-info btn-sm">View</a>&nbsp;
+                    <a asp-action="Print" asp-route-id="@invoice.Id" class="btn btn-success btn-sm">Download PDF</a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            var message = '@TempData["SuccessMessage"]';
+            if (message) {
+                toastr.options = {
+                    "closeButton": true,
+                    "progressBar": true,
+                    "positionClass": "toast-top-right",
+                    "timeOut": "5000",      
+                    "extendedTimeOut": "2000" 
+                };
+                toastr.success(message);
+            }
+        });
+    </script>
+}
+<style>
+    #toast-container > .toast-success {
+        background-color: #28a745 !important; /* Bootstrap green */
+        color: white !important;
+        font-weight: bold;
+    }
+</style>

@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container mt-4">
+    <h2>Admin Panel</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="adminTab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard">Dashboard</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#party">Parties</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#inventory">Inventory</button>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="dashboard"></div>
+        <div class="tab-pane fade" id="party"></div>
+        <div class="tab-pane fade" id="inventory"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // load tab content dynamically
+        function loadTabContent(tabId, url) {
+            $(tabId).load(url);
+        }
+
+        // Load Dashboard by default
+        loadTabContent("#dashboard", "/Dashboard/Index");
+
+        // Load Parties when tab clicked
+        $('button[data-bs-target="#party"]').on("click", function () {
+            loadTabContent("#party", "/Party/Index");
+        });
+
+        // Load Inventory when tab clicked
+        $('button[data-bs-target="#inventory"]').on("click", function () {
+            loadTabContent("#inventory", "/Inventory/Index");
+        });
+    </script>
+}

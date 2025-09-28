@@ -1,0 +1,99 @@
+﻿@model InvoiceManagementSystem.Models.Invoice
+@{
+    ViewData["Title"] = "Invoice Details";
+}
+
+<style>
+    .invoice-box {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        color: #555;
+    }
+    .invoice-box table {
+        width: 100%;
+        line-height: inherit;
+        text-align: left;
+        border-collapse: collapse;
+    }
+    .invoice-box table td {
+        padding: 5px;
+        vertical-align: top;
+    }
+    .invoice-box table th {
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+        font-weight: bold;
+        padding: 10px;
+    }
+    .invoice-box table tr.total td {
+        border-top: 2px solid #eee;
+        font-weight: bold;
+    }
+    .invoice-box h1 {
+        font-size: 36px;
+        line-height: 36px;
+        color: #333;
+    }
+</style>
+
+<div class="invoice-box">
+    <table>
+        <tr>
+            <td>
+                <h1>Invoice</h1>
+                <strong>Invoice #: </strong> @Model.InvoiceNumber<br />
+                <strong>Date: </strong> @Model.InvoiceDate.ToShortDateString()
+            </td>
+            <td style="text-align:right">
+                <strong>Party:</strong><br />
+                @Model.Party?.Name<br />
+                @Model.Party?.Address
+            </td>
+        </tr>
+    </table>
+
+    <hr />
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Unit Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.InventoryItem?.Name</td>
+                    <td>@item.Price.ToString("C")</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Total.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="total">
+                <td colspan="3" style="text-align:right">Grand Total:</td>
+                <td>@Model.TotalAmount.ToString("C")</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <hr />
+
+    <p>Thank you for your business!</p>
+
+    <div style="margin-top:20px;">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    
+    </div>
+</div>

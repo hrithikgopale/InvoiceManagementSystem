@@ -1,0 +1,197 @@
+﻿
+<div class="container mt-4">
+
+    <h4 class="mb-4">Manage Parties</h4>
+
+    <!-- Add Party Form -->
+    <div class="card mb-4 p-3 shadow-sm">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label for="partyName" class="form-label">Name</label>
+                <input type="text" id="partyName" class="form-control" placeholder="Name">
+            </div>
+            <div class="col-md-3">
+                <label for="partyEmail" class="form-label">Email</label>
+                <input type="email" id="partyEmail" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-2">
+                <label for="partyPhone" class="form-label">Phone</label>
+                <input type="text" id="partyPhone" class="form-control" placeholder="Phone">
+            </div>
+            <div class="col-md-3">
+                <label for="partyAddress" class="form-label">Address</label>
+                <input type="text" id="partyAddress" class="form-control" placeholder="Address">
+            </div>
+            <div class="col-md-1 d-grid">
+                <button id="addPartyBtn" class="btn btn-primary" data-bs-toggle="tooltip" title="Add Party">
+                    <i class="bi bi-plus-circle"></i> Add
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Party Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table id="partyTable" class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editPartyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Edit Party</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editPartyId" />
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" id="editPartyName" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="editPartyEmail" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="text" id="editPartyPhone" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <input type="text" id="editPartyAddress" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="saveEditParty" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+               $(document).ready(function(){
+
+            // Toastr options
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+
+            // Load all parties
+            function loadParties(){
+                $.getJSON('/Party/GetAll', function(data){
+                    var tbody = $('#partyTable tbody');
+                    tbody.empty();
+                    $.each(data, function(i, p){
+                        tbody.append('<tr data-id="'+p.id+'">'+
+                            '<td>'+p.name+'</td>'+
+                            '<td>'+p.email+'</td>'+
+                            '<td>'+p.phone+'</td>'+
+                            '<td>'+p.address+'</td>'+
+                            '<td>'+
+                                '<button class="editPartyBtn btn btn-sm btn-warning me-1" title="Edit"><i class="fas fa-pencil-alt"></i></button>'+
+                                '<button class="deletePartyBtn btn btn-sm btn-danger" title="Delete"><i class="fas fa-trash-alt"></i></button>'+
+                            '</td>'+
+                        '</tr>');
+                    });
+                });
+            }
+
+            loadParties();
+
+            // Add Party
+            $('#addPartyBtn').click(function(){
+                var name = $('#partyName').val();
+                var email = $('#partyEmail').val();
+                var phone = $('#partyPhone').val();
+                var address = $('#partyAddress').val();
+
+                $.post('/Party/CreateAjax', { Name:name, Email:email, Phone:phone, Address:address }, function(data){
+                    if(data.success){
+                        loadParties();
+                        $('#partyName, #partyEmail, #partyPhone, #partyAddress').val('');
+                        toastr.success('Party added successfully');
+                    } else {
+                        toastr.error(data.message || 'Error adding party');
+                    }
+                });
+            });
+
+            // Edit Party
+            var editModal = new bootstrap.Modal(document.getElementById('editPartyModal'));
+
+            $(document).on('click', '.editPartyBtn', function(){
+                var row = $(this).closest('tr');
+                var id = row.data('id');
+                $('#editPartyId').val(id);
+                $('#editPartyName').val(row.find('td:eq(0)').text());
+                $('#editPartyEmail').val(row.find('td:eq(1)').text());
+                $('#editPartyPhone').val(row.find('td:eq(2)').text());
+                $('#editPartyAddress').val(row.find('td:eq(3)').text());
+                editModal.show();
+            });
+
+            // Save Edit
+            $('#saveEditParty').click(function(){
+                var id = $('#editPartyId').val();
+                var name = $('#editPartyName').val();
+                var email = $('#editPartyEmail').val();
+                var phone = $('#editPartyPhone').val();
+                var address = $('#editPartyAddress').val();
+
+                $.post('/Party/EditAjax', { id:id, Name:name, Email:email, Phone:phone, Address:address }, function(data){
+                    if(data.success){
+                        loadParties();
+                        editModal.hide();
+                        toastr.success('Party updated successfully');
+                    } else {
+                        toastr.error(data.message || 'Error updating party');
+                    }
+                });
+            });
+
+            // Delete Party
+            $(document).on('click', '.deletePartyBtn', function(){
+                if(!confirm('Are you sure you want to delete this party?')) return;
+                var row = $(this).closest('tr');
+                var id = row.data('id');
+
+                $.post('/Party/DeleteAjax', { id:id }, function(data){
+                    if(data.success){
+                        loadParties();
+                        toastr.success('Party deleted successfully');
+                    } else {
+                        toastr.error(data.message || 'Error deleting party');
+                    }
+                });
+            });
+
+        });
+
+    </script>
+}
